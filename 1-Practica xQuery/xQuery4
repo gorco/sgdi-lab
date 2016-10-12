@@ -1,0 +1,15 @@
+(: 
+ : Este fichero generado para la asignatura SGDI
+ : Ejercicio A.4, Sesion Guiada 1
+ : Autores: Antonio Calvo Morata y Carlos Congosto Sandoval 
+ :)
+xquery version "3.0";
+
+(: 
+ : Mostrar toda la información de los libros que cuestan menos de 10€, ordenados
+ : por nombre de autor descendente 
+ :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+where $book/price < 10.0
+order by $book/title descending
+return $book

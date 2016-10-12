@@ -1,0 +1,17 @@
+(: 
+ : Este fichero generado para la asignatura SGDI
+ : Ejercicio A.3, Sesion Guiada 1
+ : Autores: Antonio Calvo Morata y Carlos Congosto Sandoval 
+ :)
+xquery version "3.0";
+
+(: Mostrar el título de los libros de informática (género “Computer”) :)
+(: 
+ : for $book in doc("/db/sgdi/books.xml")/catalog/book[genre="Computer"]
+ : return $book/title
+ :)
+ 
+(: FLWOR expression :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+where $book/genre = "Computer"
+return $book/title

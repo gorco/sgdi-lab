@@ -1,0 +1,17 @@
+(: 
+ : Este fichero generado para la asignatura SGDI
+ : Ejercicio A.2, Sesion Guiada 1
+ : Autores: Antonio Calvo Morata y Carlos Congosto Sandoval 
+ :)
+xquery version "3.0";
+
+(: Mostrar toda la información de los libros de fantasía :)
+(: 
+ : for $book in doc("/db/sgdi/books.xml")/catalog/book[genre="Science Fiction"]
+ : return $book
+ :)
+
+(: FLWOR expression :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+where $book/genre = "Science Fiction"
+return $book

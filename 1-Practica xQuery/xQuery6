@@ -1,0 +1,16 @@
+(: 
+ : Este fichero generado para la asignatura SGDI
+ : Ejercicio A.6, Sesion Guiada 1
+ : Autores: Antonio Calvo Morata y Carlos Congosto Sandoval 
+ :)
+xquery version "3.0";
+
+(: Encontrar el libro con identificador “bk105” y devolver un solo nodo
+ : “elem” con atributo “precio” y dos hijos: titulo y autor 
+ :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+where $book/@id = "bk105"
+return <elem precio = "{$book/price}">
+    <titulo>{$book/title/text()}</titulo>
+    <autor>{$book/author/text()}</autor>
+    </elem>
