@@ -1,0 +1,55 @@
+(: 
+ : Este fichero generado para la asignatura SGDI
+ : Ejercicio A, Sesion Guiada 1
+ : Autores: Antonio Calvo Morata y Carlos Congosto Sandoval 
+ :)
+xquery version "3.0";
+
+(: 1.- Mostrar toda la información de todos los libros :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+return $book
+
+(: 2.- Mostrar toda la información de los libros de fantasía :) 
+for $book in doc("/db/sgdi/books.xml")/catalog/book[genre="Science Fiction"]
+return $book
+
+(: 2.- FLWOR expression :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+where $book/genre = "Science Fiction"
+return $book
+
+(: 3.- Mostrar el título de los libros de informática (género “Computer”) :)
+ 
+for $book in doc("/db/sgdi/books.xml")/catalog/book[genre="Computer"]
+return $book/title
+ 
+(: 3.- FLWOR expression :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+where $book/genre = "Computer"
+return $book/title
+
+(: 
+ : 4.- Mostrar toda la información de los libros que cuestan menos de 10€, ordenados
+ : por nombre de autor descendente 
+ :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+where $book/price < 10.0
+order by $book/title descending
+return $book
+
+(: 5.- Mostrar toda la informaci´on del libro con identificador “bk105” :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+where $book/@id = "bk105"
+return $book
+
+(: Encontrar el libro con identificador “bk105” y devolver un solo nodo
+ : “elem” con atributo “precio” y dos hijos: titulo y autor 
+ :)
+for $book in doc("/db/sgdi/books.xml")/catalog/book
+where $book/@id = "bk105"
+return <elem precio = "{$book/price}">
+    <titulo>{$book/title/text()}</titulo>
+    <autor>{$book/author/text()}</autor>
+    </elem>
+
+
