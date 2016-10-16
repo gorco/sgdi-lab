@@ -51,20 +51,20 @@ def func2():
 
 
 # 3- Tuplas (o diccionarios) de países junto con su capital. Atención: Algunas
-    # capitales son elementos “city” hijos directos de “country”, pero otras
-    # ciudades están dentro de provincias.
+# capitales son elementos “city” hijos directos de “country”, pero otras
+# ciudades están dentro de provincias.
 def func3():
     result = []
-    q = """for $c in doc("/db/sgdi/factbook.xml")//country
-    let $cap := $c/@capital
+    q = """for $country in doc("/db/sgdi/factbook.xml")//country
+    let $cap := $country/@capital
     return
         <pais>
-            {data($c/name)}
+            {data($country/name)}
             <capital>
                {
-                   for $ciudad in doc("/db/sgdi/factbook.xml")//city
-                   where $ciudad/@id = $cap
-                   return data($ciudad/name)
+                   for $city in doc("/db/sgdi/factbook.xml")//city
+                   where $city/@id = $cap
+                   return data($city/name)
                }
             </capital>
         </pais>"""
@@ -92,10 +92,57 @@ def func4():
 
     return result
 
+# 5- Nombres (cadena de texto) de los países americanos con área total mayor
+# de 100000, ordenados en order lexicográfico inverso.
+def func5():
+    result = []
+    q = """for $country in doc("/db/sgdi/factbook.xml")//country
+        where $country/encompassed/@continent ="f0_126" and $country/@total_area > 100000
+        order by $country/@name descending
+        return $country/name[1]""" #$a/name[1] devuelve sólo el primer nombre del país en caso de tener más de
+                            # un nombre, por ejemplo con "United States"/"USA"/"states" devuelve sólo USA
+
+    r = db.query(q, start=1, how_many=-1)
+
+    nodes = r.results
+    for country in nodes:
+        result.append(country.text)
+
+    return result
+
+# 6- Parejas (ciudad, pais ) o diccionarios Python de las ciudades en países con
+# inflación superior a 20. Se recomienda obtener todas estas ciudades mediante
+# una sola consulta a eXist-db, aunque se permite realizar varias
+# consultas anidadas.
+def func6():
+    result = []
+    q = """for $country in doc ("/db/sgdi/factbook.xml")//country
+        where $country/@inflation >20
+        return
+            for $city in $country//city
+            return
+                <tupla>
+                    <pais>
+                        {$country/name/text()}
+                    </pais>
+                    <ciudad>
+                        {$city/name/text()}
+                    </ciudad>
+                </tupla>"""
+
+    r = db.query(q, start=1, how_many=-1)
+
+    nodes = r.results
+    for country in nodes:
+        result.append(dict(pais=country.find("pais").text, ciudad=country.find("ciudad").text))
+
+    return result
+
+
 ###################################
 #
 # Probar funciones
 #
 ###################################
 
-print prettyPrint(func4())
+print prettyPrint(func6())
