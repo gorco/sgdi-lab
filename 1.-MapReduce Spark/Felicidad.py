@@ -10,6 +10,7 @@
 # ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los resultados de los demás.
 
 from mrjob.job import MRJob
+from operator import itemgetter
 
 class MRHappiness(MRJob):
 
@@ -17,11 +18,14 @@ class MRHappiness(MRJob):
     def mapper(self, key, line):
         word = line.split()
         if float(word[2]) < 2.0 and word[4] != "--":
-            yield 1, (word[0], word[2])
+            yield "uniqueKey", (word[0], word[2])
 
 	# Fase REDUCE (key es una cadena texto, values un generador de valores)
     def reducer(self, key, values):
-        yield key, list(values)
+        valuesList = list(values)
+        valuesList = sorted(valuesList, key=itemgetter(1), reverse=True)
+        for i in range(0,5):
+            yield valuesList[i]
 
 
 if __name__ == '__main__':
