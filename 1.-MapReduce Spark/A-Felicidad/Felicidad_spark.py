@@ -23,16 +23,16 @@ if len(sys.argv) != 2:
 sc = Context()
 lines = sc.textFile(sys.argv[1])
 
-counts = (
+lista = (
   lines.map(lambda x: x.split('\t')) # Dividimos en palabras y aplanamos
        .filter(lambda x: float(x[2]) < 2.0 and x[4] != '--')#filtramos las palabras que nos interesa
        .sortBy(lambda x: x[2],False)#ordenamos por la media
+       .take(5)
 )
 
 # En lugar de almacenar en disco, recolectamos y mostramos por pantalla
-output = counts.collect()
 
-for o in output[:5]:
-    print o[0], '\t', o[2]
+for o in lista:
+   print o[0], '\t', o[2]
 
 #sc.stop()
