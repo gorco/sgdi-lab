@@ -10,6 +10,7 @@
 # ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los resultados de los demás.
 
 import sys
+import unicodedata
 from pysparkling import Context
 
 # sys.argv debe contener el nombre de fichero a procesar
@@ -24,7 +25,8 @@ def function(x):
     day = x[0].split("/")
     return day[1] + "/" + day[0], x[8]
 
-for file in range(1,3):
+
+for file in range(1,3):#se recorren todas los argumentos de la llamada
     lines = sc.textFile(sys.argv[file])
 
     datos = (
@@ -44,12 +46,11 @@ for file in range(1,3):
         maxValue = o[1][-1]
         minValue = o[1][0]
         for valor in o[1]:
-            print type(valor)
-
-                #sumValues += o[valor][i]
+            sumValues+=float(str(valor))
 
 
-        print o[0], "{'max': ",maxValue,"'avg':", sumValues, "'min':",minValue ,"}"
+
+        print o[0], "{'max': ",maxValue,"'avg':", sumValues/tam, "'min':",minValue ,"}"
 
 #datos_min = datos.reduceByKey(lambda x,y: min(x,y))#unimos con la misma clave y nos quedamos con el menor
 #datos_max = datos.reduceByKey(lambda x,y: max(x,y))#unimos con la misma clave y nos quedamos con el mayor
