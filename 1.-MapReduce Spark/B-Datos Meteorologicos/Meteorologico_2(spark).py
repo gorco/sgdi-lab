@@ -30,10 +30,10 @@ for file in range(1,3):#se recorren todas los argumentos de la llamada
     lines = sc.textFile(sys.argv[file])
 
     datos = (
-        lines.map((lambda x: x.split(',')))  # Dividimos en palabras y aplanamos
+        lines.map((lambda x: x.split(',')))  # Dividimos en palabras
             .filter(lambda x: x[0] != "date-time")  # borramos la primera linea
             .map(function)  # nos quedamos con la fecha y la batería
-            .groupByKey()#.filter(lambda x: x[0] == "01/2013")
+            .groupByKey()
             .sortByKey()#ordenamos por fecha
     )
 

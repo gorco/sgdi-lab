@@ -1,7 +1,7 @@
 # coding=utf-8
 
 # Este fichero generado para la asignatura SGDI
-# Practica 1 MapReduce Y Spark
+# Practica 1 MapReduce Y Spark, Ejercicio A.2
 # Autores: Antonio Calvo Morata y Carlos Congosto Sandoval
 
 # Antonio Calvo Morata y Carlos Congosto Sandoval declaramos que esta solución es fruto exclusivamente de nuestro
@@ -17,21 +17,20 @@ if len(sys.argv) != 2:
   print "Falta el fichero!"
   exit(-1)
 
-
+# 3.- Implementar una tarea Apache Spark que resuelva este problema utilizando transformaciones y acciones sobre RDDs.
 
 # Creamos un contexto local y cargamos el fichero        
 sc = Context()
 lines = sc.textFile(sys.argv[1])
 
 lista = (
-  lines.map(lambda x: x.split('\t')) # Dividimos en palabras y aplanamos
-       .filter(lambda x: float(x[2]) < 2.0 and x[4] != '--')#filtramos las palabras que nos interesa
-       .sortBy(lambda x: x[2],False)#ordenamos por la media
+  lines.map(lambda x: x.split('\t')) # Separamos por tabuladores
+       .filter(lambda x: float(x[2]) < 2.0 and x[4] != '--') #Filtramos las palabras que nos interesan
+       .sortBy(lambda x: x[2], False) #Ordenamos por la media
        .take(5)
 )
 
 # En lugar de almacenar en disco, recolectamos y mostramos por pantalla
-
 for o in lista:
    print o[0], '\t', o[2]
 
