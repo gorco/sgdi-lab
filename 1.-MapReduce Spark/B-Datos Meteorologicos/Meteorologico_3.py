@@ -16,6 +16,7 @@ import sys
 # 3.- Implementar una tarea MapReduce en mrjob que resuelva este problema utilizando las fases mapper, combiner y
 # reducer
 class MRMeteoOpt(MRJob):
+    MRJob.SORT_VALUES = True
 
 	# Fase MAP (line es una cadena de texto)
     def mapper(self, key, line):
@@ -53,7 +54,7 @@ class MRMeteoOpt(MRJob):
 
         if float(count) > 0:
             avgValue = float(sumValue)/float(count)
-            yield key, dict(max = maxValue, avg = avgValue, min = minValue)
+            yield key, dict(max=maxValue, avg=avgValue, min=minValue)
 
 
 if __name__ == '__main__':
