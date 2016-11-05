@@ -13,25 +13,28 @@ import sys
 from pysparkling import Context
 
 # sys.argv debe contener el nombre de fichero a procesar
-if len(sys.argv) != 2:
-  print "Falta el fichero!"
-  exit(-1)
+if len(sys.argv) < 2:
+    print "No se ha especificado fichero!"
+    exit(-1)
+
+path = sys.argv[1]
+for i in range(2, len(sys.argv)):
+    path += ","+sys.argv[i]
 
 # 3.- Implementar una tarea Apache Spark que resuelva este problema utilizando transformaciones y acciones sobre RDDs.
 
 # Creamos un contexto local y cargamos el fichero        
 sc = Context()
-lines = sc.textFile(sys.argv[1])
+lines = sc.textFile(path)
 
 lista = (
   lines.map(lambda x: x.split('\t')) # Separamos por tabuladores
-       .filter(lambda x: float(x[2]) < 2.0 and x[4] != '--') #Filtramos las palabras que nos interesan
-       .sortBy(lambda x: x[2], False) #Ordenamos por la media
-       .take(5)
+       .filter(lambda x: float(x[2]) < 2.0 and x[4] != '--') # Filtramos las palabras que nos interesan
+       .top(5, lambda x: x[2]) # Obtenemos el top 5
 )
 
 # En lugar de almacenar en disco, recolectamos y mostramos por pantalla
-for o in lista:
-   print o[0], '\t', o[2]
+for entry in lista:
+   print entry[0], entry[2]
 
 #sc.stop()
