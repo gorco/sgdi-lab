@@ -27,7 +27,7 @@ class MRIndice(MRJob):
         words = line.split()
         for word in words:
             word = re.sub(r'(\W)*', '', word)
-            yield word, (1, os.environ['mapreduce_map_input_file'])
+            yield word.lower(), (1, os.environ['mapreduce_map_input_file'])
 
 	# Fase REDUCE (key es una cadena texto, values un generador de valores)
     def reducer(self, key, values):

@@ -1,7 +1,7 @@
 # coding=utf-8
 
 # Este fichero generado para la asignatura SGDI
-# Practica 1 MapReduce Y Spark
+# Practica 1 MapReduce Y Spark, Ejercicio B.2
 # Autores: Antonio Calvo Morata y Carlos Congosto Sandoval
 
 # Antonio Calvo Morata y Carlos Congosto Sandoval declaramos que esta solución es fruto exclusivamente de nuestro
@@ -38,6 +38,8 @@ if len(sys.argv) < 2:
 path = sys.argv[1]
 for i in range(2, len(sys.argv)):
     path += ","+sys.argv[i]
+
+# 2.- Implementar una tarea Apache Spark que resuelva este problema utilizando transformaciones y acciones sobre RDDs.
 
 # Creamos un contexto local y cargamos el fichero        
 sc = Context()

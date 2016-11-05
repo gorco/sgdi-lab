@@ -21,7 +21,7 @@ path = sys.argv[1]
 for i in range(2, len(sys.argv)):
     path += ","+sys.argv[i]
 
-# 3.- Implementar una tarea Apache Spark que resuelva este problema utilizando transformaciones y acciones sobre RDDs.
+# 2.- Implementar una tarea Apache Spark que resuelva este problema utilizando transformaciones y acciones sobre RDDs.
 
 # Creamos un contexto local y cargamos el fichero        
 sc = Context()
