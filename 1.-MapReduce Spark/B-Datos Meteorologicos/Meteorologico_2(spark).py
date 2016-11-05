@@ -13,6 +13,9 @@ import sys
 import unicodedata
 from pysparkling import Context
 
+# Dada una linea del fichero devuelve los valores correspondientes a la fecha y a la bateria
+# Devuelve repetido el valor de la bateria para poder trabajar con los valores min, avg y max de manera sencilla en
+# la reduceByKey permitiendo que tanto entrada como salida sea del mismo formato
 def batteryByDate(x):
     day = x[0].split("/")
     return day[1] + "/" + day[0], (x[8], x[8], x[8], 1)
@@ -24,9 +27,11 @@ def getMinMaxSum(x, y):
     count = float(x[3]) + float(y[3])
     return (maxValue, sumValue, minValue, count)
 
+#Dado una lista de 4 valores [maxValue, sumValue, minValue, numValues] en los que el segundo es una suma y el cuarto un
+# contador, devuelve una lista con 3 valores en los que el segundo pasa a ser la media
 def calculateAverage(x):
     key = x[0]
-    values = x[1] #(maxValue, sumValue, minValue, numValues)
+    values = x[1]
     return key, dict(max=values[0], avg=float(values[1])/float(values[3]), min=values[2])
 
 

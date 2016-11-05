@@ -19,6 +19,8 @@ class MRMeteoOpt(MRJob):
     MRJob.SORT_VALUES = True
 
 	# Fase MAP (line es una cadena de texto)
+    # Devuelve repetido el valor de la bateria para poder trabajar con los valores min, avg y max de manera sencilla en
+    # la fase combiner permitiendo que tanto entrada como salida sea del mismo formato
     def mapper(self, key, line):
         word = line.split(',')
         if word[0] != 'date-time':

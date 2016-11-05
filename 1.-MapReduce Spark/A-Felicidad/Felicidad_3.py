@@ -16,6 +16,7 @@ from operator import itemgetter
 # y utilice estructuras estáticas para reducir el número de parejas emitidas.
 class MRHappinessStatic(MRJob):
 
+    # Inicializar estructura estática
     def __init__(self, *args, **kwargs):
         super(MRHappinessStatic, self).__init__(*args, **kwargs)
         self.listValues = []

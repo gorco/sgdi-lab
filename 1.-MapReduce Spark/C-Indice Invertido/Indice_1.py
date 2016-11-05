@@ -23,26 +23,30 @@ class MRIndice(MRJob):
 
 	# Fase MAP (line es una cadena de texto)
     def mapper(self, key, line):
-        line=line.replace('\'', ' ')
+        line=line.replace('\'', ' ') # Eliminamos apostrofes
         words = line.split()
         for word in words:
-            word = re.sub(r'(\W)*', '', word)
+            word = re.sub(r'(\W)*', '', word) # Obtenemos las palabras sin caracteres extraños
+
+            # Devolvemos la palabra como clave y  y un par 1, nombre del fichero origen
             yield word.lower(), (1, os.environ['mapreduce_map_input_file'])
+            # Seria posible no devolver el 1 y hacer los calculos después con el tamaño del array pero esto prepara el
+            # ejericio para usar la fase Combiner
 
 	# Fase REDUCE (key es una cadena texto, values un generador de valores)
     def reducer(self, key, values):
         valuesList = list(values)
         res = defaultdict(list)
-        for v, k in valuesList: res[k].append(v) # Crea un diccionario en el que la key es el libro y los valores
+        for v, k in valuesList: res[k].append(v) # Crea un diccionario en el que la key es el libro, y los valores
                                                 # una lista de números que indican veces de aparición
         sumWordsPerBook = [];
         for book in res:
-            sumWordsPerBook.append([book, sum(res[book])]) #Obtiene por libro el número de apariciones total
+            sumWordsPerBook.append([book, sum(res[book])]) #Obtiene por libro el número de apariciones total de la palabra
 
         send = False;
         timesInBook = ""
         for entry in sumWordsPerBook:
-            timesInBook += "("+entry[0]+", "+str(entry[1])+")" # Creamos el string de salida
+            timesInBook += "("+entry[0]+", "+str(entry[1])+")" # Creamos el string de salida (libro, nº apariciones)
             if entry[1] > 20: # Si en algún libro hay más de 20 apariciones de la palabra el resultado hay que mandarlo
                 send = True;
 
