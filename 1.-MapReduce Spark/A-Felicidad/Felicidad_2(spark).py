@@ -10,7 +10,7 @@
 # ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los resultados de los demás.
 
 import sys
-from pysparkling import Context
+from pyspark import SparkContext
 
 # sys.argv debe contener el nombre de fichero a procesar
 if len(sys.argv) < 2:
@@ -24,7 +24,7 @@ for i in range(2, len(sys.argv)):
 # 2.- Implementar una tarea Apache Spark que resuelva este problema utilizando transformaciones y acciones sobre RDDs.
 
 # Creamos un contexto local y cargamos el fichero        
-sc = Context()
+sc = SparkContext(master="local")
 lines = sc.textFile(path)
 
 lista = (
@@ -37,4 +37,4 @@ lista = (
 for entry in lista:
    print entry[0], entry[2]
 
-#sc.stop()
+sc.stop()

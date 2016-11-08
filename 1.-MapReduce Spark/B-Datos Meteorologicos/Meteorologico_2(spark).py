@@ -10,8 +10,7 @@
 # ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los resultados de los demás.
 
 import sys
-import unicodedata
-from pysparkling import Context
+from pyspark import SparkContext
 
 # Dada una linea del fichero devuelve los valores correspondientes a la fecha y a la bateria
 # Devuelve repetido el valor de la bateria para poder trabajar con los valores min, avg y max de manera sencilla en
@@ -47,8 +46,7 @@ for i in range(2, len(sys.argv)):
 # 2.- Implementar una tarea Apache Spark que resuelva este problema utilizando transformaciones y acciones sobre RDDs.
 
 # Creamos un contexto local y cargamos el fichero        
-sc = Context()
-
+sc = SparkContext(master="local")
 lines = sc.textFile(path)
 
 datos = (
@@ -65,3 +63,4 @@ output = datos.collect()
 for entry in output:
    print entry[0], entry[1]
 
+sc.stop()
