@@ -12,13 +12,19 @@
 import sys
 from pysparkling import Context
 
+
 # sys.argv debe contener el nombre de fichero a procesar
 if len(sys.argv) != 2:
     print "Falta el fichero!"
     exit(-1)
 
+path = sys.argv[1]
+
+for i in range(2, len(sys.argv)):
+    path += ","+sys.argv[i]
+
 sc = Context()
-lines = sc.textFile(sys.argv[1])
+lines = sc.textFile(path)
 
 fallos = []
 
