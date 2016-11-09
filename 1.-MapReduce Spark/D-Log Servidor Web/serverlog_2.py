@@ -28,7 +28,7 @@ class MRServer(MRJob):
         aux = line.split('\"')
         if len(aux) == 3:
             words = aux[0].split() + [aux[1]] + aux[2].split()
-            if len(words) == 8:
+            if len(words) == 8: # Si la longitud no es 8 es que el formato es incorrecto
                 error = 1 if int(words[6]) >= int(400) else 0; # Comprobar si es un error 4XX o 5XX
                 size = 0 if words[7] == "-" else int(words[7]); # Comprobar tamaño y si no tiene poner 0
                 yield words[0], (1, size, error)

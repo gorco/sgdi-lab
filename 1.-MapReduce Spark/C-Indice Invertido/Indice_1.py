@@ -10,8 +10,7 @@
 # ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los resultados de los demás.
 
 from mrjob.job import MRJob
-from operator import itemgetter
-import sys
+import string
 import os
 import re
 from collections import defaultdict
@@ -24,6 +23,7 @@ class MRIndice(MRJob):
 	# Fase MAP (line es una cadena de texto)
     def mapper(self, key, line):
         line=line.replace('\'', ' ') # Eliminamos apostrofes
+        line = re.sub('[%s]' % re.escape(string.punctuation), '', line)  # quitamos los signos de puntuación
         words = line.split()
         for word in words:
             word = re.sub(r'(\W)*', '', word) # Obtenemos las palabras sin caracteres extraños

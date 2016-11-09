@@ -10,13 +10,10 @@
 # ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los resultados de los demás.
 
 from mrjob.job import MRJob
-from operator import itemgetter
-import sys
-import os
-import re
+import os, string, re
 from collections import defaultdict
 
-# 3.- IImplementar una tarea MapReduce en mrjob que resuelva este problema utilizando las fases mapper, combiner
+# 3.- Implementar una tarea MapReduce en mrjob que resuelva este problema utilizando las fases mapper, combiner
 # y reducer.
 class MRIndice(MRJob):
     MRJob.SORT_VALUES = True
@@ -24,6 +21,7 @@ class MRIndice(MRJob):
 	# Fase MAP (line es una cadena de texto)
     def mapper(self, key, line):
         line=line.replace('\'', ' ') # Eliminamos apostrofes
+        line = re.sub('[%s]' % re.escape(string.punctuation), '', line)  # quitamos los signos de puntuación
         words = line.split()
         for word in words:
             word = re.sub(r'(\W)*', '', word) # Obtenemos las palabras sin caracteres extraños
