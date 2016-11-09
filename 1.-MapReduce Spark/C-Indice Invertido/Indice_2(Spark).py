@@ -11,38 +11,56 @@
 
 import sys, re, string
 from pyspark import SparkContext
+from collections import Counter
+import os
 
-# sys.argv debe contener el nombre de fichero a procesar
-if len(sys.argv) != 4:
-    print "Falta algún fichero!"
+def wordsArray(text):
+    text = text.encode('utf-8').replace('\'', ' ')  # Eliminamos apostrofes
+    text = re.sub('[%s]' % re.escape(string.punctuation), '', text)  # quitamos los signos de puntuación
+    words = text.split()
+    listWords = []
+    for word in words:
+        word = re.sub(r'(\W)*', '', word)  # Obtenemos las palabras sin caracteres extraños
+        word = word.lower()
+        listWords.append(word)
+
+    return listWords;
+
+def filtroNumApariciones(tuple):
+    for entry in dict(tuple[1]):
+        if tuple[1][entry] > 20: # Si en algún libro hay más de 20 apariciones de la palabra el resultado hay que mandarlo
+            return True;
+
+    return False
+
+# sys.argv debe contener el nombre del directorio donde se encuentran los archivos a procesar
+if len(sys.argv) < 2 or len(sys.argv) > 3 or sys.argv[1].endswith("/"):
+    print "Debe pasar la ruta a un directorio (sin '/' al final)"
+    exit(-1)
+
+path = sys.argv[1]
+
+if not os.path.isdir(path):
+    print "El path especificado no es un directorio"
     exit(-1)
 
 # Creamos un contexto local y cargamos el fichero
 sc = SparkContext(master="local")
 
-def function(x):
-    return x[0].encode('utf-8'), (sys.argv[file], x[1])
+rdd = sc.wholeTextFiles(path)
+datos = (
+    #Devuelve una tupla por cada palabra (sin apostrofes) con la palabra y el nombre del fichero
+    # lista[-1] -> devuelve el ultimo elemento
+    rdd.flatMap(lambda x: map(lambda y: (y, x[0].split("/")[-1]), wordsArray(x[1])))
+        .groupByKey()
+        .map(lambda x: (str(x[0]), dict(Counter(map(str, x[1]))))) #Cuenta las apariciones de los libros
+                                                                 # ["libro1.txt, "libro2.txt","libro1.txt"] =>
+                                                                 # => {"libro1.txt: 2, "libro2.txt": 1}
+        .filter(filtroNumApariciones)
+)
 
-#función que modifica las palabras a minúsculas quitando signos de puntuación
-# return pareja (palabra, 1)
-def iguala(x):
-    x = x.lower() #Ponemos todo con minúsculas
-    x = re.sub('[%s]' % re.escape(string.punctuation), '', x)#quitamos los signos de puntuación
-    return x,1 #devolvemos la tupla
-
-
-for file in range(1,4):#se recorren todas los argumentos de la llamada
-    lines = sc.textFile(sys.argv[file])
-
-    datos = (
-        lines.flatMap((lambda x: x.split(' ')))  # Dividimos en palabras y aplanamos
-            .map(iguala)    #creamos la pareja palabra,1
-            .reduceByKey(lambda x,y: x+y) #sumamos el número de apariciones
-            .filter(lambda x: x[1] > 20 and x[0] != '') #quitamos las palabras que se repiten menos de 20 veces
-            .map(function) #creamos la tupla  (palabra, (libro, apariciones))
-    )
-
-    output = datos.collect()
-    print output
+output = datos.collect()
+for entry in output:
+   print entry[0], entry[1]
 
 sc.stop()
