@@ -18,48 +18,57 @@ class NaiveBayes(object):
     def __init__(self, fichero, smooth=1):
         file = open(fichero,'r')
         next(file, None) #ignoramos la línea de cabecera
-        reader = csv.reader(file)
-        instancias = 0
+        fieldNames=['day','season','wind','rain','class']
+        reader = csv.DictReader(file,fieldNames)
+
+
         days = [] #lista de días
         seasons =[] #lista de estaciones
         winds= [] #lista de viento
         rains=[] #lista de lluvia
-        clases=[] #lista de clases
+        classes=[] #lista de clases
 
         #Recorremos el fichero linea a linea
         for row in reader:
-            instancias+=1 #aumentamos el número de instancias leídas
-            days.append(row[0]) #el atributo de la primera columna lo añadimos a días
-            seasons.append(row[1]) #el atributo de la segunda columna lo añadimos a estaciones
-            winds.append(row[2]) #el atributo de la tercera columna lo añadimos a viento
-            rains.append(row[3]) #el atributo de la cuarta columna lo añadimos a lluvia
-            clases.append(row[4]) #el atributo de la quinta columnalo añadimos a clases
+            days.append(row['day']) #el atributo de la primera columna lo añadimos a días
+            seasons.append(row['season']) #el atributo de la segunda columna lo añadimos a estaciones
+            winds.append(row['wind']) #el atributo de la tercera columna lo añadimos a viento
+            rains.append(row['rain']) #el atributo de la cuarta columna lo añadimos a lluvia
+            classes.append(row['class']) #el atributo de la quinta columnalo añadimos a clases
 
         atributos = dict(day = days, season = seasons, wind=winds, rain=rains)#creamos un diccionario con los datos del fichero
 
-        print '\nTotal instancias: ',instancias #imprimimos el numero de instancias leidas del fichero
+        print '\nTotal instancias: ',reader.line_num #imprimimos el numero de instancias leidas del fichero
 
         #Mostramos los posibles valores para cada atributo
         print '\n'
+        classesAux = list(set(classes))
         for i in atributos.iterkeys():
             print 'Atributo ',i, ': ', list(set(atributos.get(i)))
-        print 'Clase: ', list(set(clases))
+        print 'Clase: ', classesAux
 		
 		#Mostramos el número de veces que aparece cada clase
         print '\n'
-        clasesAux = set(clases)
-        for clase in clasesAux:
-            print 'Intancias clase ',clase,': ',clases.count(clase)
+        for clase in classesAux:
+            print 'Intancias clase ',clase,': ',classes.count(clase)
 
-        #imprimir las instancias con los posibles valores
+        # imprimir las instancias con los posibles valores
+        
+
+
         file.close()
+
+
 
 
     def clasifica(self, instancia):
         pass        
 
     def test(self, fichero):
-        pass
+        aciertos = 0
+        fallos = 0
+
+        return (aciertos, fallos, aciertos/(aciertos+fallos))
 
 
 if __name__ == '__main__':
