@@ -27,6 +27,7 @@ class NaiveBayes(object):
         winds= [] #lista de viento
         rains=[] #lista de lluvia
         classes=[] #lista de clases
+        tuplas = []
 
         #Recorremos el fichero linea a linea
         for row in reader:
@@ -35,6 +36,10 @@ class NaiveBayes(object):
             winds.append(row['wind']) #el atributo de la tercera columna lo añadimos a viento
             rains.append(row['rain']) #el atributo de la cuarta columna lo añadimos a lluvia
             classes.append(row['class']) #el atributo de la quinta columnalo añadimos a clases
+            for i in range(len(fieldNames)):
+                tupla = (row[fieldNames[i]],row['class'])
+                tuplas.append(tupla)
+
 
         atributos = dict(day = days, season = seasons, wind=winds, rain=rains)#creamos un diccionario con los datos del fichero
 
@@ -53,9 +58,20 @@ class NaiveBayes(object):
             print 'Intancias clase ',clase,': ',classes.count(clase)
 
         # imprimir las instancias con los posibles valores
-        
-
-
+        print '\n'
+        for c in classesAux:
+                for d in set(days):
+                    tuplafound =(d,c)
+                    print 'Instancias (day = ', d, ', class = ', c, '): ',tuplas.count(tuplafound)
+                for s in set(seasons):
+                    tuplafound =(s,c)
+                    print 'Instancias (season = ', s, ', class = ', c, '): ', tuplas.count(tuplafound)
+                for r in set(rains):
+                    tuplafound =(r,c)
+                    print 'Instancias (rain = ', r, ', class = ', c, '): ', tuplas.count(tuplafound)
+                for w in set(winds):
+                    tuplafound =(w,c)
+                    print 'Instancias (wind = ', w, ', class = ', c, '): ', tuplas.count(tuplafound)
         file.close()
 
 
