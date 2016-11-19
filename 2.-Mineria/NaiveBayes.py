@@ -10,14 +10,12 @@
 # ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los resultados de los demás.
 
 
-import csv,math
+import csv,math,ast
 
 
 class NaiveBayes(object):
-    tfOT = 0
-    tfVL = 0
-    tfC = 0
-    tfL = 0
+    probabilidades = []
+    classesAux =[]
 
     def __init__(self, fichero, smooth=1):
         file = open(fichero,'r')
@@ -26,86 +24,76 @@ class NaiveBayes(object):
         reader = csv.DictReader(file)
 
         fieldNames = reader.fieldnames
+        listaMain = []#Lista que tendrá las listas de atributos
 
-        atributo1 = [] #lista de días
-        atributo2 =[] #lista de estaciones
-        atributo3 = [] #lista de viento
-        atributo4 =[] #lista de lluvia
-        classes=[] #lista de clases
-        tuplas = []
 
-        #Recorremos el fichero linea a linea
+        # Creamos tantas listas como columnas hay en el fichero
+        for i in range(len(fieldNames)):
+            listAux = []
+            listaMain.append(listAux)
+
+
+        tuplas = [] #lista con la tupla de cada pareja de atributo clase
+
+        #leemos y guardamos los datos del fichero
         for row in reader:
-            atributo1.append(row[fieldNames[0]]) #el atributo de la primera columna lo añadimos a días
-            atributo2.append(row[fieldNames[1]]) #el atributo de la segunda columna lo añadimos a estaciones
-            atributo3.append(row[fieldNames[2]]) #el atributo de la tercera columna lo añadimos a viento
-            atributo4.append(row[fieldNames[3]]) #el atributo de la cuarta columna lo añadimos a lluvia
-            classes.append(row['class']) #el atributo de la quinta columnalo añadimos a clases
-            for i in range(len(fieldNames)):
+            for i in range(len(row)):
+                listaMain[i].append(row[fieldNames[i]])
                 tupla = (row[fieldNames[i]],row['class'])
                 tuplas.append(tupla)
-
-
-        atributos = dict(day = atributo1, season = atributo2, wind=atributo3, rain=atributo4)#creamos un diccionario con los datos del fichero
 
         print '\nTotal instancias: ',reader.line_num-1 #imprimimos el numero de instancias leidas del fichero
 
         #Mostramos los posibles valores para cada atributo
         print '\n'
-        classesAux = list(set(classes))
-        for i in atributos.iterkeys():
-            print 'Atributo ',i, ': ', set(atributos.get(i))
-        print 'Clase: ', classesAux
-		
-		#Mostramos el número de veces que aparece cada clase
+        self.classesAux = list(set(listaMain[len(listaMain)-1]))
+        contador= 0
+        for name in fieldNames:
+            print 'Atributo ',name, ': ', set(listaMain[contador])
+            contador+=1
+
+        #Mostramos el número de veces que aparece cada clase
         print '\n'
-        for clase in classesAux:
-            print 'Intancias clase ',clase,': ',classes.count(clase)
+        for clase in self.classesAux:
+            print 'Intancias clase ',clase,': ',listaMain[len(listaMain)-1].count(clase)
 
         # imprimir las instancias con los posibles valores
         print '\n'
-        for c in classesAux:
-                for d in set(atributo1):
-                    tuplafound =(d,c)
-                    print 'Instancias (day = ', d, ', class = ', c, '): ',tuplas.count(tuplafound)
-                for s in set(atributo2):
-                    tuplafound =(s,c)
-                    print 'Instancias (season = ', s, ', class = ', c, '): ', tuplas.count(tuplafound)
-                for r in set(atributo3):
-                    tuplafound =(r,c)
-                    print 'Instancias (rain = ', r, ', class = ', c, '): ', tuplas.count(tuplafound)
-                for w in set(atributo4):
-                    tuplafound =(w,c)
-                    print 'Instancias (wind = ', w, ', class = ', c, '): ', tuplas.count(tuplafound)
+        for c in self.classesAux:
+            for cont in range(len(listaMain)-1):
+                for atributo in list(set(listaMain[cont])):
+                    tuplaFind=(atributo,c)
+                    cuantas = tuplas.count(tuplaFind)
+                    print 'Instancias (',fieldNames[cont],' = ', atributo, ', class = ', c, '): ', cuantas
+                    if smooth:
+                        if cuantas == 0: prob = 0
+                        else:
+                            prob = 1+math.log(cuantas,2)
+                    else: prob=cuantas/len(tuplas)
+
+                    dicc = dict(nombre=atributo, clase=c, prob = prob)
+                    self.probabilidades.append(dicc)
+
         file.close()
 
 
 
-        for atributo in classesAux:
-            if smooth:
-                at = 1 + math.log(classes.count(atributo),2)
-                if atributo == 'very late':
-                    self.tfVL = at
-                elif atributo == 'late':
-                    self.tfL = at
-                elif atributo == 'cancelled':
-                    self.tfC = at
-                else:
-                    self.tfOT = at
-
-            else:
-                pass
-
-        print 'Very late: ', self.tfVL
-        print 'Late: ', self.tfL
-        print 'Cancelled: ', self.tfC
-        print 'On Time: ', self.tfOT
-
 
     def clasifica(self, instancia):
-        instancia = dict(instancia)
+        prob = 0
+        probCan = 0
+        candidata = ''
+        print '\n'
+        for clase in self.classesAux:
+            for key in instancia.keys():
+                for dic in self.probabilidades:
+                    if dic.get('nombre') == instancia.get(key) and dic.get('clase')==clase:
+                        prob += dic.get('prob')
+                        #print 'atributo: ',instancia.get(key),' clase: ',clase,'::>', dic.get('prob')
+            if prob > probCan: candidata = clase
 
-
+        print 'Clase predicha: ',candidata
+        return candidata
 
 
     def test(self, fichero):
