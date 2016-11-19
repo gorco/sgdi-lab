@@ -10,6 +10,7 @@
 # ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los resultados de los demás.
 
 import string, os, sys, math, collections
+from operator import itemgetter
 
 # Dada una linea de texto, devuelve una lista de palabras no vacias 
 # convirtiendo a minusculas y eliminando signos de puntuacion por los extremos
@@ -32,7 +33,7 @@ class VectorialIndex(object):
             # Creamos el indice invertido
             for name in files:
                 idDoc = len(self.filesList)
-                self.filesList.append(name)
+                self.filesList.append(os.path.join(path, name))
                 file = open(os.path.join(path, name),'r')
                 # Leemos todas las palabras del archivo
                 for l in file:
@@ -51,16 +52,55 @@ class VectorialIndex(object):
 
         # Sustituimos el número de apariciones por el valor TD-IDF de cada palabra en cada documento
         totalFiles = len(self.invertedIndex)
+        self.norma = [0] * totalFiles;
         for key, values in self.invertedIndex.items():
             tuplelist = []
             for id, count in values.items():
                 # TF-IDF(i,j) = TF(i,j) * IDF(i,j) = (1+log(f(i,j))) * log(N/n(i)
-                tuplelist.append((id, (1 + math.log(count, 2)) * math.log(totalFiles/len(values), 2)))
+                tdidf = (1 + math.log(count, 2)) * math.log(totalFiles/len(values), 2)
+                tuplelist.append((id, tdidf))
+                self.norma[id] += math.pow(tdidf, 2)
             self.invertedIndex[key] = tuplelist
 
-    def consulta_vectorial(self, consulta, n=3):
-        pass
+        i = 0
+        for value in self.norma:
+            self.norma[i] = math.sqrt(value)
+            i+=1;
 
+
+    ###########################################
+    #                                         #
+    #     CONSULTA VECTORIAL                  #
+    #                                         #
+    ###########################################
+    def consulta_vectorial(self, consulta, n=3):
+        scores = [(0, 0)] * len(self.filesList) # Inicializamos el producto escalar parcial asociado a cada documento d (en total hay N)
+        # Obtenemos la lista [(doc,peso),...(doc,peso)] asociada al término t
+        words = consulta.split()
+        for word in words:
+            p = self.invertedIndex[word] # Pesos del término word en cada documento
+            # Sumamos el peso en cada producto escalar parcial
+            for (id, peso) in p:
+                scores[id] = (id, scores[id][1]+peso)  # No hay producto
+        # Dividimos entre la norma | d |
+        for id in range(len(self.filesList)):
+            scores[id] = (id, scores[id][1]/self.norma[id])
+        # Obtenemos los k documentos con mayor relevancia
+        scores.sort(key=itemgetter(1), reverse=True)
+
+        # Trasformamos los ids al nombre de los ficheros
+        result = []
+        for tuple in scores[0:n] :
+            result.append((self.filesList[tuple[0]], tuple[1]))
+
+        return result
+
+
+    ###########################################
+    #                                         #
+    #     CONSULTA CONJUNCION                 #
+    #                                         #
+    ###########################################
     def consulta_conjuncion(self, consulta):
         words = consulta.split()
         result = []
@@ -82,6 +122,7 @@ class VectorialIndex(object):
                 else :
                     terms = None
 
+            # Trasformamos los ids al nombre de los ficheros
             for id in answer:
                 result.append(self.filesList[id])
         else :
@@ -114,8 +155,9 @@ class VectorialIndex(object):
 
 
 # Como argumentos recibe:
-# arg[1] = Directorio de la coleccion  (OBLIGATORIO)
-# arg[2:n] = Palabras para la consulta (OPCIONAL)
+# argv[1] = Directorio de la coleccion  (OBLIGATORIO)
+# argv[2:n] = Palabras para la consulta (OPCIONAL)
+#      * Si arg[2] es un numero se usará como cantidad de documentos a mostrar en la consulta vectorial
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print "No se ha especificado directorio!"
@@ -124,9 +166,14 @@ if __name__ == '__main__':
     root = sys.argv[1]
 
     request = ""
+    n = 2
     if(len(sys.argv) > 2) :
-        request = sys.argv[2]
-        for i in range(3, len(sys.argv)):
+        k = 2
+        if(sys.argv[2].isdigit()):
+            n = int(sys.argv[2])
+            k += 1
+        request = sys.argv[k]
+        for i in range(k+1, len(sys.argv)):
             request += " "+str(sys.argv[i])
     # Valor de consulta por defecto si no se pasan como argumento
     else  :
@@ -134,3 +181,4 @@ if __name__ == '__main__':
 
     v = VectorialIndex(root,[])
     print(v.consulta_conjuncion(request))
+    print(v.consulta_vectorial(request, n))
