@@ -29,7 +29,7 @@ class VectorialIndex(object):
         self.invertedIndex = dict()
         # for doc in os.listdir(directorio):
             # file = open(doc, 'r')
-        for path, subdirs, files in os.walk(root):
+        for path, subdirs, files in os.walk(directorio):
             # Creamos el indice invertido
             for name in files:
                 idDoc = len(self.filesList)
@@ -40,26 +40,29 @@ class VectorialIndex(object):
                     line = extrae_palabras(l)
                     for word in line:
                         if word not in stop: # Si es una palabra no "censurada"
-                            # Si no hay una entrada en el indice la creamos con el valor de un diccionario ordenado vacio
-                            if not word in self.invertedIndex:
-                                self.invertedIndex[word] = collections.OrderedDict()
+                            # Si no hay una entrada en el indice la creamos con el valor de una lista con la tupla
+                            # de ese id y 1 (ha aparecido una vez)
+                            if word not in self.invertedIndex:
+                                self.invertedIndex[word] = [(idDoc, 1)]
                             # Si la palabra ya ha aparecido en el archivo le sumamos uno al contador de veces q aparece
-                            if idDoc in self.invertedIndex[word]:
-                                self.invertedIndex[word][idDoc] += 1
-                            # Sino iniciamos la cuenta en uno
                             else :
-                                self.invertedIndex[word][idDoc] = 1
+                                lastTuple = self.invertedIndex[word][-1]
+                                if idDoc == lastTuple[0]:
+                                    self.invertedIndex[word][-1] = (lastTuple[0], lastTuple[1]+1)
+                                # Sino iniciamos la cuenta en uno
+                                else :
+                                    self.invertedIndex[word].append((idDoc, 1))
 
         # Sustituimos el número de apariciones por el valor TD-IDF de cada palabra en cada documento
         totalFiles = len(self.invertedIndex)
         self.norma = [0] * totalFiles;
         for key, values in self.invertedIndex.items():
             tuplelist = []
-            for id, count in values.items():
+            for tuple in values:
                 # TF-IDF(i,j) = TF(i,j) * IDF(i,j) = (1+log(f(i,j))) * log(N/n(i)
-                tdidf = (1 + math.log(count, 2)) * math.log(totalFiles/len(values), 2)
-                tuplelist.append((id, tdidf))
-                self.norma[id] += math.pow(tdidf, 2)
+                tdidf = (1 + math.log(tuple[1], 2)) * math.log(totalFiles/len(values), 2)
+                tuplelist.append((tuple[0], tdidf))
+                self.norma[tuple[0]] += math.pow(tdidf, 2)
             self.invertedIndex[key] = tuplelist
 
         i = 0
@@ -123,8 +126,8 @@ class VectorialIndex(object):
                     terms = None
 
             # Trasformamos los ids al nombre de los ficheros
-            for id in answer:
-                result.append(self.filesList[id])
+            for tuple in answer:
+                result.append(self.filesList[tuple[0]])
         else :
             # Si la consulta sólo tiene una palabra devolvemos directamente los archivos donde aparece
             for tuple in self.invertedIndex[words[0]] :
@@ -142,7 +145,7 @@ class VectorialIndex(object):
         while True:
             try:
                 if p1[0] == p2[0]:
-                    answer.append(p1[0])
+                    answer.append(p1)
                     p1 = it1.next()
                     p2 = it2.next()
                 elif p1[0] < p2[0]:
