@@ -148,10 +148,40 @@ class ID3(object):
 
     def clasifica(self, instancia):
         arbol = self.arbol
-        
+
+        while arbol.__class__!=Hoja:
+            for arista in arbol.aristas:
+                if arista[1] == instancia.get(arbol.nodo):
+                    if arista[0].__class__!=Hoja:
+                        arbol.nodo =  arista[0].nodo
+                        arbol.aristas = arista[0].aristas
+                    else:
+                        print arista[0].a
+                        return arista[0].a
 
     def test(self, fichero):
-        pass
+        aciertos = 0
+        fallos = 0
+
+        file = open(fichero, 'r')
+        reader = csv.DictReader(file)
+
+        print 'TEST'
+        for row in reader:
+            clase = row['class']
+            del row['class']
+            print row, '-', clase
+            predicha = self.clasifica(row)
+            print 'Clase predicha: ', predicha
+            if predicha == clase:
+                print '\t--> Acierto'
+                aciertos += 1
+
+            else:
+                print '\t--> Fallo'
+                fallos += 1
+
+        return (aciertos, fallos, aciertos / float(aciertos + fallos))
 
     def save_tree(self, fichero):
         pass
