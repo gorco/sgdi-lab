@@ -31,7 +31,9 @@ class ID3(object):
     instancias = [] # número de instancias leídas
     fieldNames = []
     reader = None
+    arbol = None
 
+    #Descubre el valor mayoritario de clase
     def mayoritaria(self):
         may = 0
         clase = ''
@@ -45,6 +47,7 @@ class ID3(object):
                 clase = c
         return clase
 
+    #función que mira si el valor de clase es único
     def unico(self):
         unico = True
         i = 1
@@ -63,7 +66,7 @@ class ID3(object):
         return ret
 
     def tdidt (self, instancias, claves):
-        print claves
+
         cp = self.mayoritaria()
         if self.unico():
             return Hoja(instancias[0].get('class'))
@@ -72,33 +75,35 @@ class ID3(object):
         else:
             atributo = self.selectAtribute(claves)
             n = NodoInterno(atributo)
-            print 'claves 2', claves
-            print 'quier borrar: ',atributo
 
             for valor in self.conjuntos[self.fieldNames.index(atributo)]:
-                print valor
                 cj = self.particion(instancias, atributo, valor)
                 if len(cj)==0:
                     nh = Hoja(cp)
                 else:
-                    claves.remove(atributo)
-                    nh = self.tdidt(cj,claves)
+                    clavesAux = []
+                    for clave in claves:
+                        if clave != atributo:
+                            clavesAux.append(clave)
+                    nh = self.tdidt(cj,clavesAux)
                 n.aniadeHijo(nh, valor)
 
-                return n
+            return n
 
 
-    def selectAtribute(self,fieldNames):
+    def selectAtribute(self,atributos):
         ##Averiguar el atributo con la menor entropía entropia
+        if atributos.count('class')>0:
+            atributos.remove('class')
         EntropiaMin = sys.maxint
         Raiz = ''
-        for i in range(len(fieldNames) - 1):
+        for atributo in atributos:
             Entropia = 0
-            for valor in self.conjuntos[i]:
+            for valor in self.conjuntos[self.fieldNames.index(atributo)]:
                 listAux = []
                 entropiaAux = 0
                 for instancia in self.instancias:
-                    if instancia.get(self.fieldNames[i]) == valor:
+                    if instancia.get(atributo) == valor:
                         listAux.append(instancia)
                 # print listAux
                 for clase in self.conjuntos[len(self.conjuntos) - 1]:
@@ -115,11 +120,9 @@ class ID3(object):
                     else:
                         entropiaAux -= t * math.log(t, 2)
                 Entropia += (len(listAux) / float(self.reader.line_num - 1)) * entropiaAux
-            # print self.fieldNames[i], ':', Entropia
             if Entropia < EntropiaMin:
                 EntropiaMin = Entropia
-                Raiz = self.fieldNames[i]
-                # print 'raiz = ',Raiz
+                Raiz = atributo
         return Raiz
 
     def __init__(self, fichero):
@@ -140,11 +143,12 @@ class ID3(object):
 
         print '\nTotal instancias: ', self.reader.line_num-1  # imprimimos el numero de instancias leidas del fichero
 
-        arbol = self.tdidt(self.instancias, self.fieldNames)
-        
+        self.arbol = self.tdidt(self.instancias, self.fieldNames)
+
 
     def clasifica(self, instancia):
-        pass
+        arbol = self.arbol
+        
 
     def test(self, fichero):
         pass
