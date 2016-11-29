@@ -14,8 +14,8 @@ import csv, math, sys
 class Nodo:pass
 
 class Hoja(Nodo):
-    def __init__(self, atributo):
-        self.a = atributo
+    def __init__(self, valor):
+        self.nodo = valor
 
 class NodoInterno(Nodo):
     def __init__(self, valor):
@@ -172,11 +172,9 @@ class ID3(object):
         while arbol.__class__!=Hoja:
             for arista in arbol.aristas:
                 if arista[1] == instancia.get(arbol.nodo):
-                    if arista[0].__class__!=Hoja:
-                        arbol.nodo =  arista[0].nodo
-                        arbol.aristas = arista[0].aristas
-                    else:
-                        return arista[0].a
+                    arbol = arista[0]
+                   
+        return arbol.nodo
 
     def test(self, fichero):
         aciertos = 0
