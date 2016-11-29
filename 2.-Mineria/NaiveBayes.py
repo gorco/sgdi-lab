@@ -25,14 +25,17 @@ class NaiveBayes(object):
         parejas = []
         listaClases = []
 
-
+        #recorremos todas las líneas leidas
         for row in reader:
-            self.listaMain.append(row)
+            self.listaMain.append(row)#Almacenamos el diccionario leido en la lista de las instancias
             clase = row['class']
-            listaClases.append((clase))
+            listaClases.append((clase))#alamcenamos las clases en una lista de sólo el atributo clase
+            #recorremos todos los atributos de la fila leída
             for i in range(len(fieldNames)-1):
+                # almacenamos la tupla (atributo, clase) en una lista de parejas
                 parejas.append({fieldNames[i]:row[fieldNames[i]],'class':clase})
 
+        #Imprimimos el número de instancias leídas
         print 'Instancias leidas: ', len(self.listaMain),'\n'
 
         #Creamos tantos conjuntos como atributos hay
@@ -40,29 +43,36 @@ class NaiveBayes(object):
         for lista in range(len(reader.fieldnames)):
             conjuntos.append(set())
 
+        #Almacenamos los distintos valores de los atributos en la lista de conjuntos
         for instancia in self.listaMain:
             cont = 0
             for it in range(len(fieldNames)):
                 conjuntos[cont].add((instancia.get(fieldNames[cont])))
                 cont+=1
 
-
+        #imprimimos los posibles  valores para cada atributo
         for c in range(len(fieldNames)-1):
             print 'Atributo ', fieldNames[c],': ',list(conjuntos[c])
 
+        #Imprimimos los posibles valores de clase
         self.clases = list(conjuntos[len(fieldNames)-1])
         print 'Clase: ', self.clases,'\n'
 
+        #Imprimimos los valores de clase con el número de veces que se repite
         for clase in self.clases:
             print 'Instancias clase ', clase, ': ', listaClases.count(clase)
         print '\n'
 
+        #Recorremos los posibles valores de clase
         for c in self.clases:
+            #Recorremos la lista de conjuntos de atributos
             for cont in range(len(fieldNames)-1):
+                #Recorremos los posibles valores de los atributos
                 for atributo in conjuntos[cont]:
+                    #Contamos las veces que se repite la tupla (atributo, clase) y lo imprimimos
                     cuantas = parejas.count({fieldNames[cont]:row[fieldNames[cont]],'class':c})
                     print 'Instancias (', fieldNames[cont], ' = ', atributo, ', class = ', c, '): ', cuantas
-
+                    #Calculamos la probabilidad de la pareja
                     prob = float(smooth + cuantas) / (listaClases.count(c)+(len(conjuntos[cont])*smooth))
 
                     dicc = dict(nombre=atributo, clase=c, prob=prob)  # creamos un diccionario con la información
@@ -77,16 +87,13 @@ class NaiveBayes(object):
         probCan = 0 #Probabilidad de la clase candidata
         candidata = '' #Clase candidata
 
-
         #Recorremos cada posible clase y calculamos su probabilidad
         for clase in self.clases:
             prob = 0
-            for key in instancia.keys():
-                for dic in self.probabilidades:
-                    if dic.get('nombre') == instancia.get(key) and dic.get('clase')==clase:
-                        if dic.get('prob')==0.0:
-                            prob -= 0
-                        else:
+            for key in instancia.keys():#Recorremos todas las palabras clave
+                for dic in self.probabilidades: #recorremos todas las probabilidades
+                    if dic.get('nombre') == instancia.get(key) and dic.get('clase')==clase:#buscamos la probabilidad de la pareja atributo clase
+                        if dic.get('prob')!=0.0: #miramos si es distinto de 0
                             prob -= math.log(dic.get('prob'),2)
             #print 'Clase: ',clase, ' Prob: ',prob
             if prob > probCan: #Miramos si la probabilidad actual es mayor que la candidata
@@ -97,21 +104,20 @@ class NaiveBayes(object):
 
 
     def test(self, fichero):
-        aciertos = 0
-        fallos = 0
-        lista = []
-
+        aciertos = 0 #Numero de aciertos
+        fallos = 0 #Numero de fallos
         file = open(fichero, 'r')
         reader = csv.DictReader(file)
 
         print 'TEST'
+        #Recorremos las instancias leidas
         for row in reader:
-            clase = row['class']
-            del row['class']
-            print row, '-',clase
-            predicha = self.clasifica(row)
-            print 'Clase predicha: ', predicha
-            if predicha == clase:
+            clase = row['class']#almacenamos en una variable el valor de la clase
+            del row['class'] #eliminamos del diccionario la clase
+            print row, '-',clase #Imprimos el diccionario con la clase correcta
+            predicha = self.clasifica(row) #Hacemos la llamada a la función clasifica
+            print 'Clase predicha: ', predicha #Imprimimos la clase predicha
+            if predicha == clase: #comprobamos si ha acertado y mostramos el resultado
                 print '\t--> Acierto'
                 aciertos+=1
 
@@ -119,6 +125,6 @@ class NaiveBayes(object):
                 print '\t--> Fallo'
                 fallos+=1
 
-        return (aciertos, fallos, aciertos/float(aciertos+fallos))
+        return (aciertos, fallos, aciertos/float(aciertos+fallos))#Devolvemos la tupla con los resultados
 
 

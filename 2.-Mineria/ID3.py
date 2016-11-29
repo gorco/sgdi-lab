@@ -35,91 +35,110 @@ class ID3(object):
 
     #Descubre el valor mayoritario de clase
     def mayoritaria(self,instancias):
-        may = 0
-        clase = ''
+        may = 0 #Numero de veces que se repite la mayoritari
+        clase = ''#Clase mayoritaria
+        #Recorremos los posibles valores de clase
         for c in self.conjuntos[len(self.conjuntos)-1]:
-            rep = 0
+            rep = 0#Numero de repeticiones de la clase
+            #Recorremos las instancias
             for ins in instancias:
+                #Contamos las instancias con class igual a la clase
                 if (ins.get('class')==c):
                     rep+=1
+            #Actualizamos los valores de mayoritaria
             if rep > may:
                 may = rep
                 clase = c
+
         return clase
 
     #función que mira si el valor de clase es único
     def unico(self,instancias):
-        unico = True
-        i = 1
+        unico = True#La clase es unica
+        i = 1 # Iterador
+        #Tomamos el primer valor de clase de las instancias
         clase = instancias[0].get('class')
+        #Recorremos las instancias mientras el valor de clase sea único
         while unico and i < len(instancias):
             if self.instancias[i].get('class') != clase:
                 unico = False
             i+=1
         return unico
 
+    #Crea una lista con las instancias que cumplen con el atributo y el valor de dicho atributo
     def particion(self, instancias,  atributo, valor):
-        ret =[]
+        ret =[]#lista de instancias
+        #Recorremos las instancias
         for instancia in instancias:
+            #Comprobamos que la instancia cumple la condicion
             if instancia.get(atributo)==valor:
-                ret.append(instancia)
+                ret.append(instancia)#Si cumple lo añadimos a la lista
         return ret
 
+    #funcion que crea el arbol de decisión
     def tdidt (self, instancias, claves):
-
-        cp = self.mayoritaria(instancias)
+        cp = self.mayoritaria(instancias)#Buscamos la clase mayoritaria
+        #Si la clase es única
         if self.unico(instancias):
             return Hoja(instancias[0].get('class'))
+        #Si la lista de claves es vacía
         elif len(claves) == 0:
             return Hoja(cp)
         else:
-            atributo = self.selectAtribute(claves)
-            n = NodoInterno(atributo)
-
+            atributo = self.selectAtribute(claves,instancias)#Buscamos el atributo con la menor entropía
+            n = NodoInterno(atributo)#Nos creamos un nodo interno con el atributo
+            #Recorremos los valores de dicho atributo
             for valor in self.conjuntos[self.fieldNames.index(atributo)]:
-                cj = self.particion(instancias, atributo, valor)
-                if len(cj)==0:
+                cj = self.particion(instancias, atributo, valor)#Conjunto con el valor del atributo que trabajamos
+                if len(cj)==0: #si es vacio creamos una hoja
                     nh = Hoja(cp)
                 else:
-                    clavesAux = []
+                    clavesAux = [] #lista de atributos auxiliar
                     for clave in claves:
-                        if clave != atributo:
+                        if clave != atributo:#Almacenamos todos los atributos en la lista salvo el atributo con el que trabajamos
                             clavesAux.append(clave)
+                    #Hacemos la llamada recursiva y creamos el hijo
                     nh = self.tdidt(cj,clavesAux)
                 n.aniadeHijo(nh, valor)
 
             return n
 
-
-    def selectAtribute(self,atributos):
-        ##Averiguar el atributo con la menor entropía entropia
+    #Averiguar el atributo con la menor entropía
+    def selectAtribute(self,atributos,instancias):
+        #Si existe el atributo class lo eliminamos
         if atributos.count('class')>0:
             atributos.remove('class')
-        EntropiaMin = sys.maxint
-        Raiz = ''
+
+        EntropiaMin = sys.maxint #Indicador de la menor entropía
+        Raiz = ''#Atributo con la menor entropía
+        #Recorremos los atributos
         for atributo in atributos:
-            Entropia = 0
+            Entropia = 0 #Entropía del atributo
+            #Recorremos los valores del atributo
             for valor in self.conjuntos[self.fieldNames.index(atributo)]:
-                listAux = []
-                entropiaAux = 0
-                for instancia in self.instancias:
-                    if instancia.get(atributo) == valor:
+                listAux = [] #Lista auxiliar
+                entropiaAux = 0 #entropia de cada valor
+                #Recorremos las instancias
+                for instancia in instancias:
+                    if instancia.get(atributo) == valor:#Si el valor del atributo es correcto se añade a la lisat
                         listAux.append(instancia)
-                # print listAux
+                #Recorremos los valores de clase
                 for clase in self.conjuntos[len(self.conjuntos) - 1]:
-                    cont = 0.0
-                    for ins in listAux:
+                    cont = 0.0 #Contador
+                    for ins in listAux: #Recorremos la lista auxiliar de instancias
                         if ins.get('class') == clase:
                             cont += 1.0
                     if len(listAux) == 0:
                         t = 0
                     else:
                         t = cont / len(listAux)
+                    #Calculamos la entropia del valor del atributo
                     if t == 0.0:
                         entropiaAux = 0.0
                     else:
                         entropiaAux -= t * math.log(t, 2)
-                Entropia += (len(listAux) / float(self.reader.line_num - 1)) * entropiaAux
+                Entropia += (len(listAux) / float(self.reader.line_num - 1)) * entropiaAux #Calculamos la entropia el atributo
+            #Actualizamos los datos de menor entropía
             if Entropia < EntropiaMin:
                 EntropiaMin = Entropia
                 Raiz = atributo
@@ -157,7 +176,6 @@ class ID3(object):
                         arbol.nodo =  arista[0].nodo
                         arbol.aristas = arista[0].aristas
                     else:
-                        print arista[0].a
                         return arista[0].a
 
     def test(self, fichero):
