@@ -34,12 +34,12 @@ class ID3(object):
     arbol = None
 
     #Descubre el valor mayoritario de clase
-    def mayoritaria(self):
+    def mayoritaria(self,instancias):
         may = 0
         clase = ''
         for c in self.conjuntos[len(self.conjuntos)-1]:
             rep = 0
-            for ins in self.instancias:
+            for ins in instancias:
                 if (ins.get('class')==c):
                     rep+=1
             if rep > may:
@@ -48,11 +48,11 @@ class ID3(object):
         return clase
 
     #función que mira si el valor de clase es único
-    def unico(self):
+    def unico(self,instancias):
         unico = True
         i = 1
-        clase = self.instancias[0].get('class')
-        while unico and i < len(self.instancias):
+        clase = instancias[0].get('class')
+        while unico and i < len(instancias):
             if self.instancias[i].get('class') != clase:
                 unico = False
             i+=1
@@ -67,8 +67,8 @@ class ID3(object):
 
     def tdidt (self, instancias, claves):
 
-        cp = self.mayoritaria()
-        if self.unico():
+        cp = self.mayoritaria(instancias)
+        if self.unico(instancias):
             return Hoja(instancias[0].get('class'))
         elif len(claves) == 0:
             return Hoja(cp)
@@ -146,6 +146,7 @@ class ID3(object):
         self.arbol = self.tdidt(self.instancias, self.fieldNames)
 
 
+
     def clasifica(self, instancia):
         arbol = self.arbol
 
@@ -184,4 +185,5 @@ class ID3(object):
         return (aciertos, fallos, aciertos / float(aciertos + fallos))
 
     def save_tree(self, fichero):
+        
         pass
