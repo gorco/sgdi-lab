@@ -229,4 +229,27 @@ class ID3(object):
                 self.lines.add((arbol.nodo, arista[1],arista[0].nodo))
                 self.imprime(arista[0],file)
 
+# Como argumentos recibe:
+# argv[1] = Fichero de entrenamiento
+# argv[2] = Fichero test (OPCIONAL) si no se pasa argumento coge el nombre argv[1] + _test seguido del formato
+# argv[3] = Smooth (OPCIONAL y sólo si se ha especificado argv[2]
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print "No se ha especificado el fichero!"
+        exit(-1)
+
+    file = sys.argv[1]
+    if len(sys.argv) == 2:
+        testfile = file+"_test"
+    else :
+        testfile = sys.argv[2]
+
+    id3 = ID3(file)
+    resultado = id3.test(testfile)
+    id3.save_tree('train.dot')
+    print 'aciertos: ', resultado[0]
+    print 'fallos: ', resultado[1]
+    print 'tasa: ', resultado[2]
+
+    #id3.clasifica({'day': 'weekday', 'season': 'winter', 'wind': 'high', 'rain': 'heavy'})
 

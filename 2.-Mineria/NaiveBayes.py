@@ -10,7 +10,7 @@
 # ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los resultados de los demás.
 
 
-import csv,math
+import csv, math, sys
 
 
 class NaiveBayes(object):
@@ -128,4 +128,28 @@ class NaiveBayes(object):
 
         return (aciertos, fallos, aciertos/float(aciertos+fallos))#Devolvemos la tupla con los resultados
 
+# Como argumentos recibe:
+# argv[1] = Fichero de entrenamiento
+# argv[2] = Fichero test (OPCIONAL) si no se pasa argumento coge el nombre argv[1] + _test seguido del formato
+# argv[3] = Smooth (OPCIONAL y sólo si se ha especificado argv[2]
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print "No se ha especificado el fichero!"
+        exit(-1)
 
+    file = sys.argv[1]
+    smooth = 1
+    if len(sys.argv) == 2:
+        testfile = file+"_test"
+    else :
+        testfile = sys.argv[2]
+        if len(sys.argv) == 4:
+            smooth = int(sys.argv[3])
+
+    nb = NaiveBayes(file, smooth)
+    resultado = nb.test(testfile)
+    print 'aciertos: ', resultado[0]
+    print 'fallos: ', resultado[1]
+    print 'tasa: ', resultado[2]
+
+    #nb.clasifica({'day':'weekday','season':'winter','wind':'high','rain':'heavy'})
