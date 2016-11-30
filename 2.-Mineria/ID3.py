@@ -173,7 +173,7 @@ class ID3(object):
             for arista in arbol.aristas:
                 if arista[1] == instancia.get(arbol.nodo):
                     arbol = arista[0]
-                   
+
         return arbol.nodo
 
     def test(self, fichero):
@@ -201,5 +201,27 @@ class ID3(object):
         return (aciertos, fallos, aciertos / float(aciertos + fallos))
 
     def save_tree(self, fichero):
-        
-        pass
+        self.lines = []
+        file = open(fichero,'w')
+        file.write('diagraph tree {\n')
+        arb = self.arbol
+        self.imprime(arb,file)
+
+        for a in self.lines:
+            line = a[0]+'->'+a[2]+'[label="'+a[1]+'"]\n'
+            file.write(line)
+        file.write('}\n')
+        file.close()
+
+    def imprime(self, arbol, file):
+        if arbol.__class__==Hoja:
+            line = arbol.nodo+'[label = "'+arbol.nodo+'"]\n'
+            file.write(line)
+        else:
+            line = arbol.nodo + '[label = "' + arbol.nodo + '", shape = "box"];\n'
+            file.write(line)
+            for arista in arbol.aristas:
+                self.lines.append((arbol.nodo, arista[1],arista[0].nodo))
+                self.imprime(arista[0],file)
+
+

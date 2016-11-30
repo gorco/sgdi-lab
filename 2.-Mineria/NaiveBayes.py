@@ -29,11 +29,12 @@ class NaiveBayes(object):
         for row in reader:
             self.listaMain.append(row)#Almacenamos el diccionario leido en la lista de las instancias
             clase = row['class']
-            listaClases.append((clase))#alamcenamos las clases en una lista de sólo el atributo clase
+            listaClases.append(clase)#alamcenamos las clases en una lista de sólo el atributo clase
             #recorremos todos los atributos de la fila leída
             for i in range(len(fieldNames)-1):
-                # almacenamos la tupla (atributo, clase) en una lista de parejas
-                parejas.append({fieldNames[i]:row[fieldNames[i]],'class':clase})
+                # almacenamos el diccionario (atributo, clase) en una lista de parejas
+                dicc = {fieldNames[i]:row[fieldNames[i]],'class':clase}
+                parejas.append(dicc)
 
         #Imprimimos el número de instancias leídas
         print 'Instancias leidas: ', len(self.listaMain),'\n'
@@ -70,7 +71,7 @@ class NaiveBayes(object):
                 #Recorremos los posibles valores de los atributos
                 for atributo in conjuntos[cont]:
                     #Contamos las veces que se repite la tupla (atributo, clase) y lo imprimimos
-                    cuantas = parejas.count({fieldNames[cont]:row[fieldNames[cont]],'class':c})
+                    cuantas = parejas.count({fieldNames[cont]:atributo,'class':c})
                     print 'Instancias (', fieldNames[cont], ' = ', atributo, ', class = ', c, '): ', cuantas
                     #Calculamos la probabilidad de la pareja
                     prob = float(smooth + cuantas) / (listaClases.count(c)+(len(conjuntos[cont])*smooth))
