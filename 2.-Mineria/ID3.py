@@ -244,9 +244,10 @@ if __name__ == '__main__':
     else :
         testfile = sys.argv[2]
 
+    dotfile = file.split('/')[-1]
     id3 = ID3(file)
     resultado = id3.test(testfile)
-    id3.save_tree('train.dot')
+    id3.save_tree(dotfile+'.dot')
     print 'aciertos: ', resultado[0]
     print 'fallos: ', resultado[1]
     print 'tasa: ', resultado[2]
