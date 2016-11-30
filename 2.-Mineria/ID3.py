@@ -212,7 +212,7 @@ class ID3(object):
             file.write(n)
 
         for a in self.lines:
-            line = a[0]+'->'+a[2]+'[label="'+a[1]+'"];\n'
+            line = '"'+a[0]+'" -> "'+a[2]+'" [label = "'+a[1]+'"];\n'
             file.write(line)
         file.write('}\n')
         file.close()
@@ -220,10 +220,10 @@ class ID3(object):
     def imprime(self, arbol, file):
 
         if arbol.__class__==Hoja:
-            line = arbol.nodo+'[label = "'+arbol.nodo+'"];\n'
+            line = '"'+arbol.nodo+'" [label = "'+arbol.nodo+'"];\n'
             self.nodos.add(line)
         else:
-            line = arbol.nodo + '[label = "' + arbol.nodo + '", shape = "box"];\n'
+            line = '"'+arbol.nodo + '" [label = "' + arbol.nodo + '", shape = "box"];\n'
             self.nodos.add(line)
             for arista in arbol.aristas:
                 self.lines.add((arbol.nodo, arista[1],arista[0].nodo))
