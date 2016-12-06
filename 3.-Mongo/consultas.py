@@ -79,9 +79,13 @@ def usuario_sexo_edad( sexo, edad_min, edad_max ):
 def usuarios_apellidos():#falta
     client = MongoClient()
     db = client['sgdi_pr3']
-    users = db.usuarios.find()
+    users = db.usuarios.find({'$where': 'this.apellido1 == this.apellido2'}).sort('edad',1)
 
+    for u in users:
+        print u['nombre'],u['apellido1'],' ',u['apellido2']
     client.close()
+
+
     
 # 7.- Titulo de las peliculas cuyo director tienen un nombre que empieza por
 # un prefijo
@@ -95,9 +99,6 @@ def pelicula_prefijo( prefijo ):
         print peli['titulo']
 
     client.close()
-
-pelicula_prefijo( 'Yol' )
-
     
 
 # 8.- _id de usuarios con exactamente 'n' gustos cinematográficos, ordenados por
@@ -116,17 +117,18 @@ def usuarios_gustos_numero(n):
     
 # 9.- usuarios que vieron una determinada pelicula en un periodo concreto
 # >>> usuarios_vieron_pelicula( '583ef650323e9572e2812680', '2015-01-01', '2016-12-31' )
-def usuarios_vieron_pelicula(id_pelicula, inicio, fin):#falta
+def usuarios_vieron_pelicula(id_pelicula, inicio, fin):
     client = MongoClient()
     db = client['sgdi_pr3']
-    usuarios = db.usuarios.find({'visualizaciones._id':ObjectId(id_pelicula)})#id bien
+    db.blog.find({"comentarios": {"$elemMatch": {"autor": "javier", "puntuacion": {"$gte": 5}}}})
+    usuarios = db.usuarios.find({'visualizaciones':
+                                     {'$elemMatch': {'_id':ObjectId(id_pelicula),'fecha':{'$gte':inicio, '$lte':fin}}}})
 
     for user in usuarios:
         print user['_id']
-        print user['visualizaciones']
 
     client.close()
 
 
-#usuarios_vieron_pelicula( '583ef651323e9572e2813e64', '2015-01-01', '2016-12-31' )
+#usuarios_vieron_pelicula( '583ef651323e9572e2813e64', '2010-01-01', '2016-12-31' )
 
