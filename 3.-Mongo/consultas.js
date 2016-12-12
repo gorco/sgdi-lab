@@ -27,7 +27,10 @@ function agg2(){
 // 3.- Listado (Pais, edad minima-maxima-media) de mayores de 17 años, contando
 // únicamente paises con mas de un usuario mayor de 17 años.
 function agg3(){
-  /* */
+  db.usuarios.aggregate([{$match:{"edad":{"$gt":17}}},
+						{$group:{"_id":"$direccion.pais",cont:{$sum:1},min:{$min:"$edad"},max:{$max:"$edad"},avg:{$avg:"$edad"}}},
+						{$match:{cont:{"$gt":1}}},
+						{$project:{_id:0, pais:"$_id",min:1,max:1,avg:1}}])
 }  
   
   
