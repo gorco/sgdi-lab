@@ -28,6 +28,7 @@ def usuario_peliculas(user_id, n):
     return user
 
 
+
 # 2. _id, nombre y apellidos de los primeros 'n' usuarios a los que les gusten 
 # varios tipos de película ('gustos') a la vez.
 # >>> usuarios_gustos(  ['terror', 'comedia'], 5  )
@@ -120,7 +121,7 @@ def pelicula_prefijo( prefijo ):
     db = client['sgdi_pr3']
 
     # Consulta
-    query = {'director': {'$regex': '^'+prefijo}}
+    query = {'director': {'$regex': '^'+prefijo, '$options':'i'}}
     proy = {'_id':0, 'titulo':1}
     peliculas = db.peliculas.find(query, proy)
 
