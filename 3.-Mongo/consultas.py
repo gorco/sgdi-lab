@@ -21,7 +21,7 @@ def usuario_peliculas(user_id, n):
 
     query = {"_id":user_id}#Consulta
     proy = {"visualizaciones":{"$slice": n}, "visualizaciones.fecha":1, "visualizaciones.titulo":1, "_id":0}#proyección
-    user = db.usuarios.find(query,proy).limit(n)
+    user = db.usuarios.find(query,proy)
     #Cierre de la conexión
     client.close()
 
