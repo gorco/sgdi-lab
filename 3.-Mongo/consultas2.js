@@ -82,7 +82,7 @@ function mr1(){
 		},
 		//otros
 		{
-			out : "result"
+			out : {inline:1}
 		}).find();
 }
 
@@ -102,7 +102,7 @@ function mr2(){
 			query: { 
 				"direccion.pais": "Emiratos Árabes Unidos"
 			},
-			out : "result"
+			out : {inline:1}
 		}).find();
 }
 
@@ -141,7 +141,7 @@ function mr3(){
 				reducedVal.avg = reducedVal.avg / reducedVal.count
 				return reducedVal
 			},
-			out : "result"
+			out : {inline:1}
 		}).find();
 }
 
@@ -158,7 +158,7 @@ function mr4(){
 		},
 		//otros
 		{
-			out : "result"
+			out : {inline:1} 
 		}).find();
 }
 
